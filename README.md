@@ -1,0 +1,1 @@
+# opensearch-dashboards-k8s-operator

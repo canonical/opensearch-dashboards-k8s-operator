@@ -1,4 +1,4 @@
-# Copyright 2023 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 name: Release to Charmhub
 
@@ -17,7 +17,8 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
     permissions:
-      contents: write  # Needed for Allure Report beta
+      pull-requests: write # Needed by lib-check job
+      contents: write # Needed by integration-test job for Allure Report
 
   release:
     name: Release charm

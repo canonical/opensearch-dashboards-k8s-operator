@@ -1,4 +1,4 @@
-# Copyright 2022 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 name: Tests
 
@@ -28,7 +28,7 @@ jobs:
 
   lib-check:
     name: Check libraries
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Checkout
@@ -39,13 +39,15 @@ jobs:
           # Workaround for https://github.com/canonical/charmcraft/issues/1389#issuecomment-1880921728
           touch requirements.txt
       - name: Check libs
-        uses: canonical/charming-actions/check-libraries@2.6.0
+        uses: canonical/charming-actions/check-libraries@2.7.0
         continue-on-error: true
         with:
           credentials: ${{ secrets.CHARMHUB_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           use-labels: false
           fail-build: ${{ github.event_name == 'pull_request' }}
+    permissions:
+      pull-requests: write
 
   promtool:
     runs-on: ubuntu-22.04
@@ -76,29 +78,25 @@ jobs:
           pushd ./terraform
           terraform init && terraform fmt && terraform validate
           popd
-      - name: run checks - prepare
+      - name: Install snaps
         run: |
           sudo snap install juju --channel=3.6 --classic
-      - name: LXD setup
+          sudo snap install microk8s --classic --channel=1.35-strict/stable
+      - name: Microk8s setup
         run: |
-          sudo snap refresh lxd --channel=latest/stable
-          sudo adduser "$USER" 'lxd'
-          # `newgrp` does not work in GitHub Actions; use `sg` instead
-          sg 'lxd' -c "lxd waitready"
-          sg 'lxd' -c "lxd init --auto"
-          sg 'lxd' -c "lxc network set lxdbr0 ipv6.address none"
-          sudo iptables -F FORWARD
-          sudo iptables -P FORWARD ACCEPT
+          sudo usermod -a -G snap_microk8s "$USER"
+          sg snap_microk8s -c "microk8s enable dns storage"
+          sg snap_microk8s -c "microk8s status --wait-ready"
       - name: Juju setup
         run: |
-          sg 'lxd' -c "juju bootstrap 'localhost' --config model-logs-size=10G"
+          sg snap_microk8s -c "juju bootstrap microk8s --config model-logs-size=10G"
           juju model-defaults logging-config='<root>=INFO; unit=DEBUG'
           juju add-model test
       - name: Terraform deploy
         run: |
           MODEL_UUID=$(juju show-model test | grep "model-uuid" | awk '{split($0, a, ": "); print a[2]}')
           pushd ./terraform
-          terraform apply -var="model_uuid=$MODEL_UUID" -auto-approve
+          terraform apply -var="model_uuid=$MODEL_UUID" -var='channel=2/edge' -auto-approve
           popd
       - name: Wait for model and applications
         run: |
@@ -110,7 +108,8 @@ jobs:
       matrix:
         path:
           - .
-          - tests/integration/application-charm
+          - tests/integration/dashboards_application_charm
+          - tests/integration/dashboards_tester_charm
     name: Build charm | ${{ matrix.path }}
     uses: canonical/data-platform-workflows/.github/workflows/build_charm.yaml@v32.1.0
     with:

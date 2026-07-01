@@ -2,8 +2,6 @@
 # Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-"""Charmed Machine Operator for Apache Opensearch Dashboards."""
-
 import logging
 
 from ops.log import JujuLogHandler

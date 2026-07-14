@@ -1,0 +1,35 @@
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+name: Release to Charmhub
+
+on:
+  push:
+    branches:
+      - 2/edge
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.gitignore'
+
+jobs:
+  ci-tests:
+    name: Tests
+    uses: ./.github/workflows/ci.yaml
+    secrets:
+      CHARMHUB_TOKEN: ${{ secrets.CHARMHUB_TOKEN }}
+    permissions:
+      pull-requests: write # Needed by lib-check job
+      contents: write # Needed by integration-test job for Allure Report
+
+  release:
+    name: Release charm
+    needs:
+      - ci-tests
+    uses: canonical/data-platform-workflows/.github/workflows/release_charm_edge.yaml@v50.0.0
+    with:
+      track: "2"
+      artifact-prefix: ${{ needs.ci-tests.outputs.artifact-prefix }}
+    secrets:
+      charmhub-token: ${{ secrets.CHARMHUB_TOKEN }}
+    permissions:
+      contents: write  # Needed to create git tags

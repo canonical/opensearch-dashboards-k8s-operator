@@ -1,0 +1,30 @@
+name: Markdown style checks
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'docs/**'   # Only run on changes to the docs directory
+  pull_request:
+    branches:
+    - '*'
+    paths:
+    - 'docs/**'   # Only run on changes to the docs directory
+
+jobs:
+  markdown-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Create venv
+      working-directory: "docs"
+      run: make install
+    - name: Lint markdown
+      working-directory: "docs"
+      run: make lint-md

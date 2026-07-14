@@ -1,4 +1,4 @@
-# Copyright 2023 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 
 name: opensearch-dashboards-k8s
@@ -28,7 +28,7 @@ resources:
   opensearch-dashboards-image:
     type: oci-image
     description: OCI image for opensearch-dashboards
-    upstream-source: ghcr.io/canonical/charmed-opensearch-dashboards:2.19.4-24.04-edge
+    upstream-source: ghcr.io/canonical/charmed-opensearch-dashboards:2.19.5-24.04_edge
 
 peers:
   dashboard_peers:

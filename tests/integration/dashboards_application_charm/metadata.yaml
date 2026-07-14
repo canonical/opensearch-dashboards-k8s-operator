@@ -1,4 +1,4 @@
-# Copyright 2024 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 name: application
 description: |
@@ -6,7 +6,7 @@ description: |
 summary: |
   Data platform libs application meant to be used only for testing of the libs in this repository.
 series:
-  - jammy
+  - noble
 
 requires:
   opensearch-client:

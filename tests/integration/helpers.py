@@ -5,7 +5,6 @@
 import asyncio
 import json
 import logging
-import os
 import socket
 import subprocess
 from pathlib import Path
@@ -33,7 +32,6 @@ from .conftest import Flags
 
 METADATA_K8S = yaml.safe_load(Path("./metadata.yaml").read_text())
 APP_NAME = METADATA_K8S["name"]
-K8s_APP_NAME = METADATA_K8S["name"]
 
 OPENSEARCH_APP_NAME = "opensearch"
 CONFIG_OPTS = {"profile": "testing"}
@@ -51,8 +49,6 @@ OPENSEARCH_CONFIG = {
 
 TLS_CERTIFICATES_APP_NAME = "self-signed-certificates"
 TLS_STABLE_CHANNEL = "1/stable"
-COS_AGENT_APP_NAME = "grafana-agent"
-COS_AGENT_RELATION_NAME = "cos-agent"
 DB_CLIENT_APP_NAME = "application"
 TRAEFIK_APP_NAME = "traefik-k8s"
 RESOURCE = {
@@ -287,8 +283,8 @@ async def get_dashboard_routing(ops_test: OpsTest, unit_name: str):
                 f"Endpoint for {APP_NAME} not found in Traefik's proxied-endpoints."
             )
 
-    app_name = unit_name.split("/")[0]
-    if DUMMY_CHARM in ops_test.model.applications and app_name == K8s_APP_NAME:
+    if DUMMY_CHARM in ops_test.model.applications:
+        app_name = unit_name.split("/")[0]
         unit_id = unit_name.split("/")[1]
         host = f"{app_name}-{unit_id}.{app_name}-endpoints"
     else:

@@ -1,8 +1,12 @@
+#!/usr/bin/env python3
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 import logging
 import os
 import subprocess
 from asyncio import sleep
-from typing import Any, AsyncGenerator, Literal
+from typing import Any, AsyncGenerator
 
 import pytest
 from pytest_operator.plugin import OpsTest
@@ -22,40 +26,6 @@ def opensearch_sysctl_settings():
     subprocess.run(["sudo", "sysctl", "-w", "net.ipv4.tcp_retries2=5"])
 
 
-@pytest.fixture(scope="session")
-def dashboard_substrate() -> Literal["k8s", "vm"]:
-    """Returns the substrate for the dashboards charm.
-
-    Normally equals SUBSTRATE, but for VM OAuth tests the identity bundle runs on K8S
-    (SUBSTRATE=k8s) while the dashboards charm is still the VM variant
-    (DASHBOARD_SUBSTRATE=vm).
-    """
-    sub = os.environ.get("DASHBOARD_SUBSTRATE", os.environ.get("SUBSTRATE", "vm")).lower()
-    if sub not in ("k8s", "vm"):
-        raise ValueError(
-            f"DASHBOARD_SUBSTRATE has invalid value. Correct values are k8s, vm. Current value {sub}."
-        )
-    return sub
-
-
-@pytest.fixture(scope="session")
-def substrate() -> Literal["k8s", "vm"]:
-    """Returns the substrate"""
-    sub = os.environ.get("SUBSTRATE", "vm").lower()
-    if sub not in ("k8s", "vm"):
-        raise ValueError(
-            f"Substrate has invalid value. Correct values are k8s, vm. Current value {sub}."
-        )
-    return sub
-
-
-@pytest.fixture
-def charm_base():
-    """Returns the base in the modern format, e.g., 'ubuntu@22.04'."""
-    base_version = os.environ.get("CHARM_UBUNTU_BASE", "22.04")
-    return f"ubuntu@{base_version}"
-
-
 @pytest.fixture
 def charmk8s(charm_base):
     """Path to the k8s charm file to use for testing."""
@@ -68,7 +38,7 @@ def charmk8s(charm_base):
 @pytest.fixture
 def application_charm() -> str:
     """Path to the application charm to use for testing."""
-    return "./tests/integration/dashboards_application_charm/application_ubuntu@22.04-amd64.charm"
+    return "./tests/integration/dashboards_application_charm/application_ubuntu@24.04-amd64.charm"
 
 
 @pytest.fixture

@@ -1,3 +1,6 @@
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 request:
   description: Perform an HTTP/HTTPS request from inside the k8s cluster.
   params:

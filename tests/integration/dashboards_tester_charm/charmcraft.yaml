@@ -1,5 +1,6 @@
-# This file configures Charmcraft.
-# See https://documentation.ubuntu.com/charmcraft/stable/reference/files/charmcraft-yaml-file/
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 type: charm
 name: dashboard-tester
 title: Charm Template

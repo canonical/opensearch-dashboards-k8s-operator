@@ -14,9 +14,13 @@ jobs:
     name: Collect integration test spread jobs
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Set up environment
         run: |
           sudo snap install charmcraft --classic
@@ -92,6 +96,8 @@ jobs:
       - collect-integration-tests
     runs-on: ${{ matrix.job.runner }}
     timeout-minutes: 217 # Sum of steps `timeout-minutes` + 5
+    permissions:
+      contents: read
     steps:
       - name: Disk usage
         timeout-minutes: 5
@@ -99,6 +105,8 @@ jobs:
       - name: Checkout
         timeout-minutes: 3
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Set up environment
         timeout-minutes: 5
         run: sudo snap install charmcraft --classic
@@ -120,14 +128,6 @@ jobs:
         # https://github.com/canonical/charmcraft/issues/2105 and
         # https://github.com/canonical/charmcraft/issues/2130 fixed
         run: ~/go/bin/spread -vv -artifacts=artifacts '${{ matrix.job.spread_job }}'
-        env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-          AZURE_SECRET_KEY: ${{ secrets.AZURE_SECRET_KEY }}
-          GCP_ACCESS_KEY: ${{ secrets.GCP_ACCESS_KEY }}
-          GCP_SECRET_KEY: ${{ secrets.GCP_SECRET_KEY }}
-          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       - name: Upload Allure results
         timeout-minutes: 3
         # Only upload results from one spread system & one spread variant
@@ -188,6 +188,8 @@ jobs:
       - integration-test
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: write # Needed to push to gh-pages-beta branch
     steps:
       - name: Download Allure
         # Following instructions from https://allurereport.org/docs/install-for-linux/#install-from-a-deb-package
@@ -212,6 +214,7 @@ jobs:
         with:
           ref: gh-pages-beta
           path: repo/
+          persist-credentials: true # Needed to push to gh-pages-beta branch
       - name: Download default test results
         # Default test results in case the integration tests time out or runner set up fails
         # (So that Allure report will show "unknown"/"failed" test result, instead of omitting the test)

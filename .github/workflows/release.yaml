@@ -15,7 +15,8 @@ jobs:
   ci-tests:
     name: Tests
     uses: ./.github/workflows/ci.yaml
-    secrets: inherit
+    secrets:
+      CHARMHUB_TOKEN: ${{ secrets.CHARMHUB_TOKEN }}
     permissions:
       pull-requests: write # Needed by lib-check job
       contents: write # Needed by integration-test job for Allure Report

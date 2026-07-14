@@ -20,6 +20,9 @@ on:
       artifact-prefix:
         description: build_charm.yaml `artifact-prefix` output
         value: ${{ jobs.build.outputs.artifact-prefix }}
+    secrets:
+      CHARMHUB_TOKEN:
+        required: false
 
 jobs:
   lint:
@@ -37,6 +40,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
       - run: |
           # Workaround for https://github.com/canonical/charmcraft/issues/1389#issuecomment-1880921728
           touch requirements.txt
@@ -53,9 +57,13 @@ jobs:
 
   promtool:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       # prometheus snap includes promtool
       - name: Install prometheus snap
@@ -77,6 +85,8 @@ jobs:
     with:
       cache: false
       path-to-charm-directory: ${{ matrix.path }}
+    permissions:
+      contents: read
 
   integration-test:
     name: Integration test charm
@@ -86,6 +96,5 @@ jobs:
     uses: ./.github/workflows/integration_test.yaml
     with:
       artifact-prefix: ${{ needs.build.outputs.artifact-prefix }}
-    secrets: inherit
     permissions:
       contents: write # Needed for Allure Report
